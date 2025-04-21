@@ -2,10 +2,10 @@
 #include <BleMouse.h>
 #include "battery.h"
 
-#define TIME_BTNB_LONG_PRESS 1000  // ボタンBの長押しと判定する時間(ms)
+#define TIME_BTNB_LONG_PRESS 300  // ボタン長押しと判定する時間(ms)
 #define LCD_TOP_OFFSET 5  // LCD上部が被って見えないから、オフセット
 #define ALARM_BAT_LEVEL 25     // 内蔵バッテリーレベル[%]の警告表示のしきい値
-bool FlagBleConnected = false;  // Bluetoothの接続判定フラグ。接続済:true / 未接続:false
+bool isBleConnected = false;  // Bluetoothの接続判定フラグ。接続済:true / 未接続:false
 unsigned long nextMonitorMills = 0;  // 次回のモニタを更新するミリ秒を格納する
 
 Battery battery = Battery();
@@ -49,7 +49,7 @@ void loop() {
 
   /* -- スライド操作関連 -- */
   if (bleMouse.isConnected()) {
-    FlagBleConnected = true;
+    isBleConnected = true;
 
     if (M5.BtnA.wasReleased()) {
       Serial.println("Send Scroll down");
@@ -62,7 +62,7 @@ void loop() {
     }
   }
   else{
-    FlagBleConnected = false;
+    isBleConnected = false;
   }
 
   /* -- Timer関連 -- */
@@ -91,7 +91,7 @@ void loop() {
     M5.Lcd.setTextSize(2);
     M5.Lcd.setCursor(5, 105 + LCD_TOP_OFFSET);
     M5.Lcd.printf("BLE:");
-    if ( FlagBleConnected ){
+    if ( isBleConnected ){
         M5.Lcd.setTextColor(GREEN, BLACK);
         M5.Lcd.printf("Yes");
         M5.Lcd.setTextColor(WHITE, BLACK);
