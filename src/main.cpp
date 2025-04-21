@@ -32,16 +32,13 @@ void setup() {
   M5.Lcd.setCursor(5,210 + LCD_TOP_OFFSET);
   M5.Lcd.printf("RH:Reverse");
 
-  // Battery
+  /* -- Battery -- */
   // 表示左上の位置x, yと表示サイズ(1-7)を設定
   battery.setPosAndSize(5, 5, 2);
-
   // deleteBattery()時の塗りつぶし色を設定
   battery.setDeleteBgColor(TFT_BLACK); 
-
   // 電池図形と%表示の色を設定
   battery.setTextColor(TFT_WHITE);
-
   // バッテリーを表示
   battery.showBattery();
 }
