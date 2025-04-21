@@ -60,7 +60,7 @@ void loop()
     {
       isBtnALongPressing = true;
       Serial.println("Scrolling down (long press)");
-      bleMouse.move(0, 0, -0.5); // ↓
+      bleMouse.move(0, 0, -1.0); // ↓
     }
     else if (M5.BtnA.wasReleased())
     {
@@ -79,7 +79,7 @@ void loop()
     {
       isBtnBLongPressing = true;
       Serial.println("Scrolling up (long press)");
-      bleMouse.move(0, 0, 0.5); // ↑
+      bleMouse.move(0, 0, 1.0); // ↑
     }
     else if (M5.BtnB.wasReleased())
     {
