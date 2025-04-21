@@ -3,11 +3,14 @@
 #include "battery.h"
 
 #define TIME_LONG_PRESS 300         // ボタン長押しと判定する時間(ms)
+#define DoubleClickThreshold 300    // ダブルクリックと判定
 #define LCD_TOP_OFFSET 5            // LCD上部が被って見えないから、オフセット
-#define ALARM_BAT_LEVEL 25          // 内蔵バッテリーレベル[%]の警告表示のしきい値
 bool isBleConnected = false;        // Bluetoothの接続判定フラグ。接続済:true / 未接続:false
 bool isBtnALongPressing = false;    // BtnAの長押しフラグ
 bool isBtnBLongPressing = false;    // BtnBの長押しフラグ
+bool isMouseMode = false;           // MouseModeフラグ
+unsigned long nowTime = 0;          // リアル時間
+unsigned long lastClickTime = 0;    // 最後にクリックした時間
 unsigned long nextMonitorMills = 0; // 次回のモニタを更新するミリ秒を格納する
 
 Battery battery = Battery();
@@ -16,7 +19,6 @@ hw_timer_t *presenTimer = NULL;
 
 void setup()
 {
-
   /* -- Begin -- */
   M5.begin();
   bleMouse.begin();
@@ -25,6 +27,8 @@ void setup()
   // presenTimer 初期停止と初期化
   timerStop(presenTimer);
   timerWrite(presenTimer, 0);
+  // 加速度センサー（MPU6886）の初期化
+  M5.IMU.Init();
 
   /* -- ボタン説明表示 -- */
   M5.Lcd.setTextSize(2);
@@ -55,6 +59,19 @@ void loop()
   if (bleMouse.isConnected())
   {
     isBleConnected = true;
+
+    // ダブルクリック判定（BtnA使用）
+    if (M5.BtnA.wasPressed())
+    {
+      nowTime = millis();
+      if (nowTime - lastClickTime < DoubleClickThreshold)
+      {
+        isMouseMode = !isMouseMode;
+        Serial.printf("Mouse move mode: %s\n", isMouseMode ? "ON" : "OFF");
+      }
+      lastClickTime = nowTime;
+    }
+
     // BtnA: 長押しスクロール or 短押し左クリック
     if (M5.BtnA.pressedFor(TIME_LONG_PRESS))
     {
@@ -93,6 +110,22 @@ void loop()
         isBtnBLongPressing = false;
       }
     }
+
+    // マウス移動（ジャイロで）
+    // 上下左右傾き対応
+    if (isMouseMode)
+    {
+      float gx, gy, gz;
+      M5.IMU.getGyroData(&gx, &gy, &gz);
+      float sensitivity = 0.05;
+      int moveX = gy * sensitivity;
+      int moveY = gx * sensitivity;
+
+      if (abs(moveX) > 1 || abs(moveY) > 1)
+      {
+        bleMouse.move(moveX, -moveY, 0);
+      }
+    }
   }
   else
   {
@@ -129,7 +162,7 @@ void loop()
   {
     // Bluetooth接続状態の表示
     M5.Lcd.setTextSize(2);
-    M5.Lcd.setCursor(5, 105 + LCD_TOP_OFFSET);
+    M5.Lcd.setCursor(5, 95 + LCD_TOP_OFFSET);
     M5.Lcd.printf("BLE:");
     if (isBleConnected)
     {
@@ -156,7 +189,7 @@ void loop()
     M5.Lcd.printf("%02d", presenTimerSec % 60);
     // 時刻
     M5.Lcd.setTextSize(2);
-    M5.Lcd.setCursor(5, 125 + LCD_TOP_OFFSET);
+    M5.Lcd.setCursor(5, 115 + LCD_TOP_OFFSET);
     // Start/Stopの表示を切り替える
     M5.Lcd.printf("Time:");
     if (timerStarted(presenTimer))
@@ -169,6 +202,23 @@ void loop()
     {
       M5.Lcd.setTextColor(RED, BLACK);
       M5.Lcd.printf("Stop ");
+      M5.Lcd.setTextColor(WHITE, BLACK);
+    }
+    // マウス
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.setCursor(5, 135 + LCD_TOP_OFFSET);
+    // Start/Stopの表示を切り替える
+    M5.Lcd.printf("Mouse:");
+    if (isMouseMode)
+    {
+      M5.Lcd.setTextColor(GREEN, BLACK);
+      M5.Lcd.printf("On ");
+      M5.Lcd.setTextColor(WHITE, BLACK);
+    }
+    else
+    {
+      M5.Lcd.setTextColor(RED, BLACK);
+      M5.Lcd.printf("Off");
       M5.Lcd.setTextColor(WHITE, BLACK);
     }
     nextMonitorMills = millis() + 1000;
