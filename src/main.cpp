@@ -1,5 +1,5 @@
 #include <M5StickCPlus.h>
-#include <BleMouse.h>
+#include <BleCombo.h>
 #include "battery.h"
 
 #define TIME_LONG_PRESS 300         // ボタン長押しと判定する時間(ms)
@@ -12,16 +12,16 @@ bool isMouseMode = false;           // MouseModeフラグ
 unsigned long nowTime = 0;          // リアル時間
 unsigned long lastClickTime = 0;    // 最後にクリックした時間
 unsigned long nextMonitorMills = 0; // 次回のモニタを更新するミリ秒を格納する
-
 Battery battery = Battery();
-BleMouse bleMouse("BanbanPointer");
 hw_timer_t *presenTimer = NULL;
 
 void setup()
 {
   /* -- Begin -- */
   M5.begin();
-  bleMouse.begin();
+  Mouse.begin();
+  Keyboard.begin();
+
   presenTimer = timerBegin(0, 80, true);
   setCpuFrequencyMhz(80);
   // presenTimer 初期停止と初期化
@@ -56,7 +56,7 @@ void loop()
   battery.batteryUpdate();
 
   /* -- スライド操作関連 -- */
-  if (bleMouse.isConnected())
+  if (Keyboard.isConnected())
   {
     isBleConnected = true;
 
@@ -77,14 +77,14 @@ void loop()
     {
       isBtnALongPressing = true;
       Serial.println("Scrolling down (long press)");
-      bleMouse.move(0, 0, -1.0); // ↓
+      Mouse.move(0, 0, -1.0); // ↓
     }
     else if (M5.BtnA.wasReleased())
     {
       if (!isBtnALongPressing)
       {
         Serial.println("Left click (short press)");
-        bleMouse.click(MOUSE_LEFT); // Left
+        Mouse.click(MOUSE_LEFT); // Left
       }
       else // 長押し後は押さない
       {
@@ -96,14 +96,14 @@ void loop()
     {
       isBtnBLongPressing = true;
       Serial.println("Scrolling up (long press)");
-      bleMouse.move(0, 0, 1.0); // ↑
+      Mouse.move(0, 0, 1.0); // ↑
     }
     else if (M5.BtnB.wasReleased())
     {
       if (!isBtnBLongPressing)
       {
         Serial.println("Right click (short press)");
-        bleMouse.click(MOUSE_RIGHT); // Right
+        Keyboard.write(KEY_BACKSPACE);
       }
       else // 長押し後は押さない
       {
@@ -123,7 +123,7 @@ void loop()
 
       if (abs(moveX) > 1 || abs(moveY) > 1)
       {
-        bleMouse.move(moveX, -moveY, 0);
+        Mouse.move(moveX, -moveY, 0);
       }
     }
   }

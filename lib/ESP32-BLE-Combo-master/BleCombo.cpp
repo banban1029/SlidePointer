@@ -1,4 +1,4 @@
 #include "BleCombo.h"
 
-BleComboKeyboard Keyboard;
+BleComboKeyboard Keyboard("SlidePointer:");
 BleComboMouse Mouse(&Keyboard);
