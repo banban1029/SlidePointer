@@ -3,7 +3,8 @@
 M5Stick を使って作成した Bluetooth 対応のスライドポインタです。  
 プレゼンテーション中に欲しい機能を盛り込みました。
 
-images/1.jpg
+![1](https://github.com/user-attachments/assets/466a9c81-3107-4c23-bc2c-ada48b90d3f9)
+
 
 ## 🔧 使用デバイス
 
@@ -19,16 +20,16 @@ images/1.jpg
   - Mouse Function
   - Battery
 - LeftButton
-  - one click: Time Start/Stop
-  - press for 3s: Time Reset
-  - press for 6s: Power Off
+  - one click: `Time Start/Stop`
+  - press for 3s: `Time Reset`
+  - press for 6s: `Power Off`
 - FrontButton
-  - one click: Slide Next (= mouse left click)
-  - double click: Mouse On/Off
-  - press for 3s: Down Scroll
+  - one click: `Slide Next (= mouse left click)`
+  - double click: `Mouse On/Off`
+  - press for 3s: `Down Scroll`
 - RightButton
-  - one click: Slide Reverse (= keyboad backspace)
-  - press for 3s: Up Scroll
+  - one click: `Slide Reverse (= keyboad backspace)`
+  - press for 3s: `Up Scroll`
 
 ## 💻 ソフトウェア構成
 
